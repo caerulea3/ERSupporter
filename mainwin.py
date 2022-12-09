@@ -5,10 +5,10 @@ import pickle as pkl
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QColor
 
-from backend import refine_patdata, now_timestamp
-from Popups import NewpPop, SimpleinputPop
+from backend import refine_patdata, now_timestamp, strip_multyline
+from Popups import NewpPop, SimpleinputPop, ChartinputPop
 from datahandler import Patient
 
 RED =  QColor(204,51,0)
@@ -29,78 +29,127 @@ class WindowClass(QMainWindow, form_class):
 
         self.patlist = []
         self.ActivePatient = None
+        self.side_patlist = []
 
         self.todolist = []
-        self.TodoTable.itemDoubleClicked.connect(self.todo_clear)
+        self.dclist = []
 
         self.AddPatB.clicked.connect(self.Addpatient)
         self.DashBoardTable.doubleClicked.connect(self.activate_patient)
 
         self.LoadB.clicked.connect(self.load_data)
         self.SaveB.clicked.connect(self.save_data)
+        self.AutoSaveB.clicked.connect(self.autosave)
+
         self.CCB.clicked.connect(self.changecc)
         self.DxB.clicked.connect(self.changedx)
-        self.AddTodoB.clicked.connect(self.addtodo)
+        self.PastMedicalB.clicked.connect(self.add_pmhx)
+        self.ChartB.clicked.connect(self.addchart)
+        self.TodoB.clicked.connect(self.addtodo)
+        self.upB.clicked.connect(self.up)
+        self.downB.clicked.connect(self.down)
+        self.DischargeB.clicked.connect(self.discharge)
         
+        self.Pat_Todo.itemDoubleClicked.connect(self.todo_clear)
+        self.ChartView.itemDoubleClicked.connect(self.chart_clear)
+        
+        self.cnt = 0
         self.autosave()
 
     def refresh(self):
-        if self.ActivePatient is not None:
-            self.PData.setPlainText("{} {} ({}/{})\nCC : {}\nDx. : {}".format(
-                self.ActivePatient.pnum, self.ActivePatient.name, self.ActivePatient.sex, self.ActivePatient.age,
-                self.ActivePatient.datas["CC"], self.ActivePatient.datas["Dx"]
-            ))
+        self.refresh_main()
+        self.refresh_pat()
 
+    def refresh_main(self):
         self.TodoTable.clear()
+        self.make_todo()
         for i in range(len(self.todolist)):
             this = QListWidgetItem(self.todolist[i][0])
             this.setBackground(self.todolist[i][1])
             self.TodoTable.addItem(this)
-        
-        self.DashBoardTable.setRowCount(0)
-        self.DashBoardTable.setRowCount(len(self.patlist))
-        self.DashBoardTable.setColumnCount(9)
 
-        for i in range(len(self.patlist)):
-            pat = self.patlist[i]
-            self.DashBoardTable.setItem(i, 0,QTableWidgetItem(str(pat.name)))
-            self.DashBoardTable.setItem(i, 1,QTableWidgetItem(str(pat.pnum)))
-            self.DashBoardTable.setItem(i, 2,QTableWidgetItem(str("{}/{}".format(pat.sex, pat.age))))
-            self.DashBoardTable.setItem(i, 3,QTableWidgetItem(str(pat.place)))
-            self.DashBoardTable.setItem(i, 4,QTableWidgetItem(str(pat.datas['CC']))) 
-            self.DashBoardTable.setItem(i, 5,QTableWidgetItem(str(pat.datas['Dx']))) 
-            self.DashBoardTable.setItem(i, 6,QTableWidgetItem(str())) #초진
-            self.DashBoardTable.setItem(i, 7,QTableWidgetItem(str())) #lab
-            self.DashBoardTable.setItem(i, 8,QTableWidgetItem(str())) #영상
+        self._update_table(self.DashBoardTable, self.patlist, main = True)
+        self._update_table(self.SideDashBoardTable, self.side_patlist)
 
-        self.DashBoardTable.resizeRowsToContents()
-        self.DashBoardTable.resizeColumnsToContents()
+    def refresh_pat(self):
+        if self.ActivePatient is None:
+            return
+
+        self.PData.setPlainText("{} {} ({}/{})\nCC : {}\nDx. : {}\nMemo : {}".format(
+            self.ActivePatient.pnum, self.ActivePatient.name, self.ActivePatient.sex, self.ActivePatient.age,
+            self.ActivePatient.datas["CC"], self.ActivePatient.datas["Dx"], self.ActivePatient.getMemo()
+        ))
+
+        self.Pat_Todo.clear()
+        this_todo = self.ActivePatient.datas["Todos"]
+        for i in range(len(this_todo)):
+            this = QListWidgetItem(this_todo[i][0])
+            this.setBackground(this_todo[i][1])
+            self.Pat_Todo.addItem(this)
+
+        self.ChartView.clear()
+        for c in self.ActivePatient.get_chart():
+            self.ChartView.addItem(QListWidgetItem(str(c)))
+
+
+    def make_todo(self):
+        self.todolist = []
+        for pat in self.patlist:
+            self.todolist += pat.get_todos()
+
+    def _update_table(self, board, table, main = False):
+        board.setRowCount(0)
+        board.setRowCount(len(table))
+        board.setColumnCount(9)
+
+        for i in range(len(table)):
+            pat = table[i]
+            board.setItem(i, 0,QTableWidgetItem(str(pat.name)))
+            board.setItem(i, 1,QTableWidgetItem(str(pat.pnum)))
+            board.setItem(i, 2,QTableWidgetItem(str("{}/{}".format(pat.sex, pat.age))))
+            board.setItem(i, 3,QTableWidgetItem(str(pat.place)))
+            board.setItem(i, 4,QTableWidgetItem(str(pat.datas['CC']))) 
+            board.setItem(i, 5,QTableWidgetItem(str(pat.datas['Dx']))) 
+            if main:
+                color = (GREEN if pat.datas["Init"]=="I" else LIGHTGREEN) if pat.isInitDone() else RED
+                wdg = QTableWidgetItem()
+                wdg.setBackground(color)
+                board.setItem(i, 6, wdg) #초진
+
+                board.setItem(i, 7,QTableWidgetItem(str())) #lab
+                board.setItem(i, 8,QTableWidgetItem(str())) #영상
+
+        board.resizeRowsToContents()
+        board.resizeColumnsToContents()
 
     def autosave(self):
-        with open("./datas/"+now_timestamp(dividor="_")+".pkl", 'wb') as f:
-            pkl.dump(self.patlist, f)
+        self.cnt +=1
+        if self.cnt == 5:
+            self.cnt = 0
+            with open("./datas/"+now_timestamp(dividor="_")+".pkl", 'wb') as f:
+                pkl.dump(self.patlist, f)
 
     def save_data(self):
-        self.pop = SimpleinputPop()
-        self.pop.SaveB.clicked.connect(self.save_confirm)
-        self.pop.show()
+        path = QFileDialog.getSaveFileName(self, 'Open file', './datas/')
+        print(path)
+        with open(path[0], 'wb') as f:
+            pkl.dump([self.patlist, self.side_patlist, self.todolist], f)
 
-    def save_confirm(self):
-        path = self.pop.plainTextEdit.toPlainText()
-        with open("./datas/"+path+".pkl", 'wb') as f:
-            pkl.dump(self.patlist, f)
 
     def load_data(self):
-        self.pop = SimpleinputPop()
-        self.pop.SaveB.clicked.connect(self.load_confirm)
-        self.pop.show()
-
-    def load_confirm(self):
-        path = self.pop.plainTextEdit.toPlainText()
-        with open("./datas/"+path, 'rb') as f:
-            self.patlist = pkl.load(f)
-        self.pop.close()
+        path = QFileDialog.getOpenFileName(self, 'Open file', './datas/')
+        print(path)
+        try:
+            with open(path[0], 'rb') as f:
+                all = pkl.load(f)
+        except FileNotFoundError:
+            return
+        if len(all) == 3:
+            self.patlist, self.side_patlist, self.todolist = all
+        if len(all) == 4:
+            self.patlist, self.side_patlist, self.todolist, _ = all
         self.refresh()
+
 
     def Addpatient(self):
         self.pop = NewpPop()
@@ -109,8 +158,12 @@ class WindowClass(QMainWindow, form_class):
 
     def _addnewpat(self):
         raw = self.pop.plainTextEdit.toPlainText()
-        pnum, pname, sex, age = refine_patdata(raw)
-        self.patlist.append(Patient(pname, pnum, sex, age))
+        pnum, pname, sex, age = refine_patdata(raw.replace("`", ""))
+        if raw.startswith("`"):
+            raw = raw.replace("`", "")
+            self.side_patlist.append(Patient(pname, pnum, sex, age))
+        else:
+            self.patlist.append(Patient(pname, pnum, sex, age))
         self.pop.close()
         self.refresh()
 
@@ -150,13 +203,68 @@ class WindowClass(QMainWindow, form_class):
         self.refresh()
 
     def addtodo(self):
-        self.pop = SimpleinputPop()
-        self.pop.SaveB.clicked.connect(self.add_todo_confirm)
-        self.pop.show()
+        if self.ActivePatient is not None:
+            self.pop = SimpleinputPop()
+            self.pop.SaveB.clicked.connect(self.add_todo_confirm)
+            self.pop.show()
 
     def add_todo_confirm(self):
         raw = self.pop.plainTextEdit.toPlainText()
         self.todolist.append([raw, ORANGE])
+        self.pop.close()
+        self.refresh()
+
+    def add_pmhx(self):
+        if self.ActivePatient is not None:
+            self.pop = SimpleinputPop()
+            self.pop.SaveB.clicked.connect(self.add_pmhx_confirm)
+            self.pop.show()
+
+    def add_pmhx_confirm(self):
+        raw = self.pop.plainTextEdit.toPlainText()
+        raw = strip_multyline(raw)
+        self.ActivePatient.add_chart(raw)
+        self.pop.close()
+        self.refresh()
+
+    def addchart(self):
+        if self.ActivePatient is not None:
+            self.pop = ChartinputPop()
+            if self.ActivePatient.isInitDone():
+                self.pop.InitB.setText("초진완료")
+            else:
+                self.init_state = "I"
+                self.pop.InitB.clicked.connect(self.toggle_init)
+            self.pop.SaveB.clicked.connect(self.addchart_confirm)
+            self.pop.show()
+    
+    def toggle_init(self):
+        if self.init_state == "I":
+            self.init_state = "R"
+            self.pop.InitB.setText("초진R")
+        elif self.init_state == "R":
+            self.init_state = "I"
+            self.pop.InitB.setText("초진")
+
+    def addchart_confirm(self):
+        raw = self.pop.textEdit.toPlainText()
+        if self.ActivePatient.isInitDone():
+            self.ActivePatient.add_chart(raw)
+        else:
+            self.ActivePatient.datas["Init"] = self.init_state
+            raw = raw.split("\n")
+            start_idx = 0
+            end_idx = len(raw)
+            for i in range(len(raw)):
+                if "CC" in raw[i]:
+                    start_idx = i
+                if ("ROS" in raw[i]) or ("PE" in raw[i]) or ("P/E" in raw[i]) or ("Neurologic Exam" in raw[i]):
+                    end_idx = i
+            if start_idx != 0:
+                self.ActivePatient.add_chart("\n".join(raw[:start_idx])) 
+            self.ActivePatient.add_chart("\n".join(raw[start_idx:end_idx]))
+            if len(raw[end_idx:]) != 0:
+                self.ActivePatient.add_chart("\n".join(raw[end_idx:]))
         self.pop.close()
         self.refresh()
 
@@ -193,7 +301,62 @@ class WindowClass(QMainWindow, form_class):
 
             self.refresh()
                 
+    def chart_clear(self):
+        r= self.ChartView.currentRow()
+        this = self.ActivePatient.get_chart()[r]
 
+        reply = QMessageBox.question(
+            self,
+            "Message",
+            "{}\nDelete?".format(this),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+
+        if reply == QMessageBox.Yes:
+            self.ActivePatient.datas["Charts"].pop(r)
+
+        self.refresh()
+
+    def up(self):
+        if self.ActivePatient is None:
+            return
+        if self.ActivePatient not in self.patlist:
+            return
+
+        idx = self.patlist.index(self.ActivePatient)
+        if idx != 0:
+            self.patlist[idx-1], self.patlist[idx] = self.patlist[idx], self.patlist[idx-1] 
+            self.refresh()
+                
+    def down(self):
+        if self.ActivePatient is None:
+            return
+        if self.ActivePatient not in self.patlist:
+            return
+
+        idx = self.patlist.index(self.ActivePatient)
+        if idx != len(self.patlist)-1:
+            self.patlist[idx+1], self.patlist[idx] = self.patlist[idx], self.patlist[idx+1] 
+        self.refresh()
+
+    def consult_img(self):
+        return
+
+    def discharge(self):
+        reply = QMessageBox.question(
+            self,
+            "Message",
+            "{}\nDelete?".format(self.ActivePatient),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+
+        if reply == QMessageBox.Yes:
+            self.patlist.remove(self.ActivePatient)
+            self.dclist.append(self.ActivePatient)
+
+        self.refresh()
 
 if __name__ == "__main__":
 

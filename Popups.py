@@ -15,3 +15,10 @@ class SimpleinputPop(QMainWindow, simpleinputUi):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+
+
+EditUi = uic.loadUiType("./UI/EditPopup.ui")[0]
+class ChartinputPop(QMainWindow, EditUi):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
