@@ -54,11 +54,11 @@ class WindowClass(QMainWindow, form_class):
         self.ChartView.itemDoubleClicked.connect(self.chart_clear)
         
         self.cnt = 0
-        self.autosave()
 
     def refresh(self):
         self.refresh_main()
         self.refresh_pat()
+        self.autosave()
 
     def refresh_main(self):
         self.TodoTable.clear()
@@ -124,7 +124,7 @@ class WindowClass(QMainWindow, form_class):
 
     def autosave(self):
         self.cnt +=1
-        if self.cnt == 5:
+        if self.cnt == 20:
             self.cnt = 0
             with open("./datas/"+now_timestamp(dividor="_")+".pkl", 'wb') as f:
                 pkl.dump(self.patlist, f)
