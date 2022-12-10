@@ -33,126 +33,6 @@
        <string>DashBoard</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>10</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string>TODOLIST</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QListWidget" name="TodoTable"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QGroupBox" name="groupBox_5">
-         <property name="title">
-          <string>GroupBox</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QPushButton" name="LoadB">
-            <property name="text">
-             <string>Load Data</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="AutoSaveB">
-            <property name="text">
-             <string>AutoSave</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="SaveB">
-            <property name="text">
-             <string>Save Data</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="AddPatB">
-            <property name="text">
-             <string>Add patient</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="ActingB">
-            <property name="text">
-             <string>술기목록</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QTableWidget" name="DashBoardTable">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>20</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <column>
-          <property name="text">
-           <string>이름</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Pnum</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>S/A</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>위치</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>CC</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Dx</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>초진</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Lab</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>영상</string>
-          </property>
-         </column>
-        </widget>
-       </item>
        <item row="2" column="0">
         <widget class="QTableWidget" name="SideDashBoardTable">
          <property name="sizePolicy">
@@ -211,6 +91,191 @@
          </column>
         </widget>
        </item>
+       <item row="2" column="1">
+        <widget class="QTableWidget" name="DCDashBoardTable">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>8</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <column>
+          <property name="text">
+           <string>이름</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Pnum</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>S/A</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>위치</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>CC</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Dx</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>초진</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Lab</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>영상</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QTableWidget" name="DashBoardTable">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>20</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <column>
+          <property name="text">
+           <string>이름</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Pnum</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>S/A</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>위치</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>CC</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Dx</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>초진</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Lab</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>영상</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>10</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>TODOLIST</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QListWidget" name="TodoTable"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>GroupBox</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QSpinBox" name="spinBox">
+            <property name="value">
+             <number>25</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="LoadB">
+            <property name="text">
+             <string>Load Data</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="AutoSaveB">
+            <property name="text">
+             <string>AutoSave</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="SaveB">
+            <property name="text">
+             <string>Save Data</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="AddPatB">
+            <property name="text">
+             <string>Add patient</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ActingB">
+            <property name="text">
+             <string>술기목록</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -239,69 +304,69 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="3" column="4">
-           <widget class="QPushButton" name="downB">
-            <property name="text">
-             <string>-</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QPushButton" name="upB">
-            <property name="text">
-             <string>+</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QPushButton" name="ReadingB">
-            <property name="text">
-             <string>판독의뢰</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QPushButton" name="ImagingB">
-            <property name="text">
-             <string>Memo</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QPushButton" name="DxB">
-            <property name="text">
-             <string>Dx</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="3">
            <widget class="QPushButton" name="DischargeB">
             <property name="text">
              <string>Discharge</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="TodoB">
-            <property name="text">
-             <string>TODO</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
+          <item row="1" column="1">
            <widget class="QPushButton" name="CCB">
             <property name="text">
              <string>CC</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="1" column="3">
+           <widget class="QPushButton" name="TodoB">
+            <property name="text">
+             <string>TODO</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QPushButton" name="ImagingB">
+            <property name="text">
+             <string>Memo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
            <widget class="QPushButton" name="ChartB">
             <property name="text">
              <string>기록입력</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="5">
+           <widget class="QPushButton" name="upB">
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="5">
+           <widget class="QPushButton" name="downB">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="DxB">
+            <property name="text">
+             <string>Dx</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="ReadingB">
+            <property name="text">
+             <string>판독의뢰</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
            <widget class="QPushButton" name="PastMedicalB">
             <property name="text">
              <string>PMHx.</string>

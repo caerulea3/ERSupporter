@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic
 from PyQt5.QtGui import QColor
 
-from backend import refine_patdata, now_timestamp, strip_multyline
+from backend import refine_patdata, now_timestamp, strip_multyline, text_linebreak
 from Popups import NewpPop, SimpleinputPop, ChartinputPop
 from datahandler import Patient
 
@@ -36,7 +36,11 @@ class WindowClass(QMainWindow, form_class):
 
         self.AddPatB.clicked.connect(self.Addpatient)
         self.DashBoardTable.doubleClicked.connect(self.activate_patient)
+        self.SideDashBoardTable.doubleClicked.connect(self.activate_patient_side)
+        self.DCDashBoardTable.doubleClicked.connect(self.reactivate_patient)
 
+        self.spinBox.valueChanged.connect(self.linebreak_mdf)
+        self.width = 25
         self.LoadB.clicked.connect(self.load_data)
         self.SaveB.clicked.connect(self.save_data)
         self.AutoSaveB.clicked.connect(self.autosave)
@@ -49,6 +53,7 @@ class WindowClass(QMainWindow, form_class):
         self.upB.clicked.connect(self.up)
         self.downB.clicked.connect(self.down)
         self.DischargeB.clicked.connect(self.discharge)
+        self.ReadingB.clicked.connect(self.ask_reading)
         
         self.Pat_Todo.itemDoubleClicked.connect(self.todo_clear)
         self.ChartView.itemDoubleClicked.connect(self.chart_clear)
@@ -70,6 +75,7 @@ class WindowClass(QMainWindow, form_class):
 
         self._update_table(self.DashBoardTable, self.patlist, main = True)
         self._update_table(self.SideDashBoardTable, self.side_patlist)
+        self._update_table(self.DCDashBoardTable, self.dclist)
 
     def refresh_pat(self):
         if self.ActivePatient is None:
@@ -89,7 +95,8 @@ class WindowClass(QMainWindow, form_class):
 
         self.ChartView.clear()
         for c in self.ActivePatient.get_chart():
-            self.ChartView.addItem(QListWidgetItem(str(c)))
+            # self.ChartView.addItem(QListWidgetItem(str(c)))
+            self.ChartView.addItem(QListWidgetItem(text_linebreak(str(c), width = self.width)))
 
 
     def make_todo(self):
@@ -124,16 +131,17 @@ class WindowClass(QMainWindow, form_class):
 
     def autosave(self):
         self.cnt +=1
+        print(self.cnt)
         if self.cnt == 20:
             self.cnt = 0
             with open("./datas/"+now_timestamp(dividor="_")+".pkl", 'wb') as f:
-                pkl.dump(self.patlist, f)
+                pkl.dump([self.patlist, self.side_patlist, self.todolist, self.dclist], f)
 
     def save_data(self):
         path = QFileDialog.getSaveFileName(self, 'Open file', './datas/')
         print(path)
         with open(path[0], 'wb') as f:
-            pkl.dump([self.patlist, self.side_patlist, self.todolist], f)
+            pkl.dump([self.patlist, self.side_patlist, self.todolist, self.dclist], f)
 
 
     def load_data(self):
@@ -144,10 +152,17 @@ class WindowClass(QMainWindow, form_class):
                 all = pkl.load(f)
         except FileNotFoundError:
             return
+        if len(all) == 1:
+            print("LOAD : len == 1")
+            self.patlist = all
         if len(all) == 3:
+            print("LOAD : len == 3")
+            print(all[0], all[1], all[2])
             self.patlist, self.side_patlist, self.todolist = all
         if len(all) == 4:
-            self.patlist, self.side_patlist, self.todolist, _ = all
+            print("LOAD : len == 4")
+            print(all[0], all[1], all[2], all[3])
+            self.patlist, self.side_patlist, self.todolist, self.dclist = all
         self.refresh()
 
 
@@ -161,15 +176,36 @@ class WindowClass(QMainWindow, form_class):
         pnum, pname, sex, age = refine_patdata(raw.replace("`", ""))
         if raw.startswith("`"):
             raw = raw.replace("`", "")
-            self.side_patlist.append(Patient(pname, pnum, sex, age))
+            self.side_patlist.insert(0, Patient(pname, pnum, sex, age))
         else:
-            self.patlist.append(Patient(pname, pnum, sex, age))
+            self.patlist.insert(0, Patient(pname, pnum, sex, age))
         self.pop.close()
         self.refresh()
 
     def activate_patient(self):
         r, c = self.DashBoardTable.currentIndex().row(), self.DashBoardTable.currentIndex().column()
         self.ActivePatient = self.patlist[int(r)]
+        self.refresh()
+
+    def activate_patient_side(self):
+        r, c = self.SideDashBoardTable.currentIndex().row(), self.SideDashBoardTable.currentIndex().column()
+        self.ActivePatient = self.side_patlist[int(r)]
+        self.refresh()
+
+    def reactivate_patient(self):
+        r, c = self.DCDashBoardTable.currentIndex().row(), self.DCDashBoardTable.currentIndex().column()
+        this = self.dclist[int(r)]
+        reply = QMessageBox.question(
+            self,
+            "Message",
+            "{}\nReactivate?".format(this),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+
+        if reply == QMessageBox.Yes:
+            self.patlist.insert(0, this)
+
         self.refresh()
 
     def changecc(self):
@@ -210,7 +246,7 @@ class WindowClass(QMainWindow, form_class):
 
     def add_todo_confirm(self):
         raw = self.pop.plainTextEdit.toPlainText()
-        self.todolist.append([raw, ORANGE])
+        self.ActivePatient.add_todo([raw, ORANGE])
         self.pop.close()
         self.refresh()
 
@@ -269,8 +305,8 @@ class WindowClass(QMainWindow, form_class):
         self.refresh()
 
     def todo_clear(self):
-        r= self.TodoTable.currentRow()
-        this = self.todolist[r]
+        r= self.Pat_Todo.currentRow()
+        this = self.ActivePatient.datas["Todos"][r]
 
         if this[1] == ORANGE:
             reply = QMessageBox.question(
@@ -282,7 +318,7 @@ class WindowClass(QMainWindow, form_class):
             )
 
             if reply == QMessageBox.Yes:
-                self.todolist[r][1] = LIGHTGREEN
+                self.ActivePatient.datas["Todos"][r][1] = LIGHTGREEN
 
             self.refresh()
             return
@@ -297,7 +333,7 @@ class WindowClass(QMainWindow, form_class):
             )
 
             if reply == QMessageBox.Yes:
-                self.todolist.pop(r)
+                self.ActivePatient.datas["Todos"].pop(r)
 
             self.refresh()
                 
@@ -357,6 +393,22 @@ class WindowClass(QMainWindow, form_class):
             self.dclist.append(self.ActivePatient)
 
         self.refresh()
+
+    def linebreak_mdf(self):
+        self.width = self.spinBox.value()
+        self.refresh()
+
+    def ask_reading(self):
+        if self.ActivePatient is not None:
+            self.pop = SimpleinputPop()
+            self.pop.show()
+            self.pop.plainTextEdit.setPlainText("{}\
+\n\n검사명: \n\nPMHx>\n\n의뢰내용 > \
+\n안녕하십니까 선생님, \n\n상환 ___ 내원하신 분입니다. \
+\n이에 r/o  소견 하 상기검사 진행하여 판독의뢰 드리오니 바쁘신 와중에 부디 고진선처 부탁드립니다. 감사합니다.\
+\nEM DI 이기언 올림 ".format(
+                    self.ActivePatient
+            ))
 
 if __name__ == "__main__":
 

@@ -1,4 +1,4 @@
-import pandas as pd
+from backend import strip_multyline
 
 class Patient():
     def __init__(self, n:str, pnum : str, s:str, a:int, p:str = "-"):
@@ -27,20 +27,21 @@ class Patient():
         else:
             return True
 
+    def add_todo(self, raw):
+        self.datas["Todos"].append(raw)
+
     def get_todos(self) -> list:
         tmp = []
         for t in self.datas["Todos"]:
-            tmp.append(("{}/n{}".format(self.__repr__(), t[0]), t[1]))
+            tmp.append(("{}\n{}".format(self.__repr__(), t[0]), t[1]))
         return tmp
 
     def add_chart(self, raw):
-        self.datas["Charts"].append(raw)
+        self.datas["Charts"].append(strip_multyline(raw))
 
     def get_chart(self):
         return self.datas["Charts"]
 
-    def add_todo(self, raw):
-        self.datas["Todos"].append(raw)
 
     def getMemo(self):
         return self.datas["Memos"]
