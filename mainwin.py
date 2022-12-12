@@ -404,10 +404,10 @@ class WindowClass(QMainWindow, form_class):
             self.pop.show()
             self.pop.plainTextEdit.setPlainText("{}\
 \n\n검사명: \n\nPMHx>\n\n의뢰내용 > \
-\n안녕하십니까 선생님, \n\n상환 ___ 내원하신 분입니다. \
-\n이에 r/o  소견 하 상기검사 진행하여 판독의뢰 드리오니 바쁘신 와중에 부디 고진선처 부탁드립니다. 감사합니다.\
+\n안녕하십니까 선생님, \n\n상환 {} 내원하신 분입니다. \
+\n이에 r/o {} 소견 하 상기검사 진행하여 판독의뢰 드리오니 바쁘신 와중에 부디 고진선처 부탁드립니다. 감사합니다.\
 \nEM DI 이기언 올림 ".format(
-                    self.ActivePatient
+                    self.ActivePatient, self.ActivePatient.datas['CC'], self.ActivePatient.datas['Dx']
             ))
 
 if __name__ == "__main__":
