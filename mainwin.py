@@ -54,6 +54,7 @@ class WindowClass(QMainWindow, form_class):
         self.downB.clicked.connect(self.down)
         self.DischargeB.clicked.connect(self.discharge)
         self.ReadingB.clicked.connect(self.ask_reading)
+        self.PlaceB.clicked.connect(self.set_place)
         
         self.Pat_Todo.itemDoubleClicked.connect(self.todo_clear)
         self.ChartView.itemDoubleClicked.connect(self.chart_clear)
@@ -173,7 +174,12 @@ class WindowClass(QMainWindow, form_class):
 
     def _addnewpat(self):
         raw = self.pop.plainTextEdit.toPlainText()
-        pnum, pname, sex, age = refine_patdata(raw.replace("`", ""))
+        try:
+            pnum, pname, sex, age = refine_patdata(raw.replace("`", ""))
+        except ValueError:
+            self.pop.close()
+            self.refresh()
+            return
         if raw.startswith("`"):
             raw = raw.replace("`", "")
             self.side_patlist.insert(0, Patient(pname, pnum, sex, age))
@@ -404,11 +410,52 @@ class WindowClass(QMainWindow, form_class):
             self.pop.show()
             self.pop.plainTextEdit.setPlainText("{}\
 \n\n검사명: \n\nPMHx>\n\n의뢰내용 > \
-\n안녕하십니까 선생님, \n\n상환 {} 내원하신 분입니다. \
+\n안녕하십니까 선생님, \n\n상환 {} 으로 내원하신 분입니다. \
 \n이에 r/o {} 소견 하 상기검사 진행하여 판독의뢰 드리오니 바쁘신 와중에 부디 고진선처 부탁드립니다. 감사합니다.\
 \nEM DI 이기언 올림 ".format(
                     self.ActivePatient, self.ActivePatient.datas['CC'], self.ActivePatient.datas['Dx']
             ))
+        """
+        "CT Abdomen+Pelvis Dynamic (contrast)
+        CT Abdomen+Pelvis Pre-Post (contrast)
+        CT Abdomen+Pelvis Post (contrast)
+        CT Abdomen+Pelvis (noncontrast)
+        CT Acute Abdomen(contrast)
+        Neck CT Dynamic(contrast)
+        Abdominal Aorta CT Angio+3D (contrast)
+        Pulmonary artery CT Angio+3D(contrast)
+        CT Acute Abdomen (contrast)
+        Chest CT (contrast)
+        Chest CT (noncontrast)
+        Lower Extremities CT Angio+3D(contrast)-Artery
+        Brain CT Angio + 3D (contrast)
+        Brain CT(noncontrast)
+        Neck CT General (contrast)
+        CT urolithiasis_initial
+        Face Skull bone CT
+        Cervical Spine CT (noncontrast)
+        Foot+3D CT(noncontrast)"
+        "MR Brain + Brain MRA + CE-MRA + Diffusion (contrast)
+        MR Brain + MRA Acute Stroke (contrast)
+        MR Brain + MRA Acute Stroke (noncontrast)
+        MR Brain - Hyperacute Stroke [contrast]
+        MR Whole Foot(contrast)
+        Meta w/u brain MRI(contrast)"
+        """
+
+    def set_place(self):
+        if self.ActivePatient is not None:
+            self.pop = SimpleinputPop()
+            self.pop.show()
+            self.pop.plainTextEdit.setPlainText("{}".format(self.ActivePatient.place))
+            self.pop.ResetB.clicked.connect(lambda:self.pop.plainTextEdit.setPlainText("Dx. : {}".format(self.ActivePatient.datas['Dx'])))
+            self.pop.SaveB.clicked.connect(self.setplace_confirm)
+
+    def setplace_confirm(self):
+        raw = self.pop.plainTextEdit.toPlainText()
+        self.ActivePatient.place = raw
+        self.pop.close()
+        self.refresh()
 
 if __name__ == "__main__":
 
