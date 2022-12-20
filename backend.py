@@ -39,6 +39,21 @@ def strip_multyline(raw : str) -> str:
 
 
 def text_linebreak(text, width=25):
+    new_texts =[]
+    old_texts = text.split("\n")
+    for l in old_texts:
+        words = l.split(" ")
+        temp = []
+        for w in words:
+            temp.append(w)
+            if len(" ".join(temp)) > width:
+                new_texts.append(" ".join(temp))
+                temp = []
+        new_texts.append(" ".join(temp))
+    
+    return "\n".join(new_texts)
+
+
     # new_texts = []
     # text_break = text.split("\n")
     # for l in text_break:
