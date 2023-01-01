@@ -135,7 +135,7 @@ class WindowClass(QMainWindow, form_class):
         print(self.cnt)
         if self.cnt == 20:
             self.cnt = 0
-            with open("./datas/"+now_timestamp(dividor="_")+".pkl", 'wb') as f:
+            with open("./datas/temp.pkl", 'wb') as f:
                 pkl.dump([self.patlist, self.side_patlist, self.todolist, self.dclist], f)
 
     def save_data(self):
@@ -172,7 +172,7 @@ class WindowClass(QMainWindow, form_class):
         self.pop.show()
         self.pop.pushButton.clicked.connect(self._addnewpat)
 
-    def _addnewpat(self):
+    def _addnewpat_brm(self):
         raw = self.pop.plainTextEdit.toPlainText()
         try:
             pnum, pname, sex, age = refine_patdata(raw.replace("`", ""))
@@ -187,6 +187,23 @@ class WindowClass(QMainWindow, form_class):
             self.patlist.insert(0, Patient(pname, pnum, sex, age))
         self.pop.close()
         self.refresh()
+        
+    def _addnewpat(self):
+        n, num, s, a = self.pop.Name.toPlainText(), self.pop.Pnum.toPlainText(), self.pop.Sex.currentText(), self.pop.Age.toPlainText()
+        n, num, a = n.strip(), num.strip(), a.strip()
+        if "" in [n, num, s, a]:
+            self.pop.close()
+            self.refresh()
+            return
+        if n.startswith("`"):
+            raw = raw.replace("`", "")
+            self.side_patlist.insert(0, Patient(n, num, s, a))
+        else:
+            self.patlist.insert(0, Patient(n, num, s, a))
+        self.pop.close()
+        self.refresh()
+        return
+        
 
     def activate_patient(self):
         r, c = self.DashBoardTable.currentIndex().row(), self.DashBoardTable.currentIndex().column()
@@ -294,19 +311,20 @@ class WindowClass(QMainWindow, form_class):
             self.ActivePatient.add_chart(raw)
         else:
             self.ActivePatient.datas["Init"] = self.init_state
-            raw = raw.split("\n")
-            start_idx = 0
-            end_idx = len(raw)
-            for i in range(len(raw)):
-                if "CC" in raw[i]:
-                    start_idx = i
-                if ("ROS" in raw[i]) or ("PE" in raw[i]) or ("P/E" in raw[i]) or ("Neurologic Exam" in raw[i]):
-                    end_idx = i
-            if start_idx != 0:
-                self.ActivePatient.add_chart("\n".join(raw[:start_idx])) 
-            self.ActivePatient.add_chart("\n".join(raw[start_idx:end_idx]))
-            if len(raw[end_idx:]) != 0:
-                self.ActivePatient.add_chart("\n".join(raw[end_idx:]))
+            # raw = raw.split("\n")
+            # start_idx = 0
+            # end_idx = len(raw)
+            # for i in range(len(raw)):
+            #     if "CC" in raw[i]:
+            #         start_idx = i
+            #     if ("ROS" in raw[i]) or ("PE" in raw[i]) or ("P/E" in raw[i]) or ("Neurologic Exam" in raw[i]):
+            #         end_idx = i
+            # if start_idx != 0:
+            #     self.ActivePatient.add_chart("\n".join(raw[:start_idx])) 
+            # self.ActivePatient.add_chart("\n".join(raw[start_idx:end_idx]))
+            # if len(raw[end_idx:]) != 0:
+            #     self.ActivePatient.add_chart("\n".join(raw[end_idx:]))
+            self.ActivePatient.add_chart(raw) 
         self.pop.close()
         self.refresh()
 

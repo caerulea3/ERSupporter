@@ -233,6 +233,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QSpinBox" name="spinBox">
+            <property name="singleStep">
+             <number>5</number>
+            </property>
             <property name="value">
              <number>25</number>
             </property>
@@ -311,9 +314,9 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QPushButton" name="CCB">
+           <widget class="QPushButton" name="PsumB">
             <property name="text">
-             <string>CC</string>
+             <string>Psum</string>
             </property>
            </widget>
           </item>
@@ -327,14 +330,14 @@
           <item row="3" column="3">
            <widget class="QPushButton" name="PlaceB">
             <property name="text">
-             <string>Place</string>
+             <string/>
             </property>
            </widget>
           </item>
           <item row="3" column="2">
            <widget class="QPushButton" name="ChartB">
             <property name="text">
-             <string>기록입력</string>
+             <string>Lab</string>
             </property>
            </widget>
           </item>
@@ -355,21 +358,21 @@
           <item row="3" column="1">
            <widget class="QPushButton" name="DxB">
             <property name="text">
-             <string>Dx</string>
+             <string>SmallChart</string>
             </property>
            </widget>
           </item>
           <item row="1" column="4">
            <widget class="QPushButton" name="ReadingB">
             <property name="text">
-             <string>판독의뢰</string>
+             <string/>
             </property>
            </widget>
           </item>
           <item row="1" column="2">
            <widget class="QPushButton" name="PastMedicalB">
             <property name="text">
-             <string>PMHx.</string>
+             <string>Chart</string>
             </property>
            </widget>
           </item>

@@ -13,7 +13,7 @@ class Patient():
             "Init" : None,
             "Charts" : [],
             "Todos" : [], 
-            "Memos" : []
+            "Memos" : "-"
         }
 
     def __repr__(self) -> str:
